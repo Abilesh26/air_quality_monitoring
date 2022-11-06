@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AQMS</title>
+  <link rel = "stylesheet" href = "style.css">
+  <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+  <!-- <script type='text/javascript' src = "main.js" defer></script> -->
+  <script type='text/javascript'>
+    var channel_id = 1784816;
+    var api_key = '98I14RUCKVAA27CS';
+    var max_gauge_value = 70;
+
+    var gauge_name1 = 'AQI';
+    var gauge_name2 = 'CO2';
+    var gauge_name3 = 'Humidity';
+   
+    var gauge_name
+    var chart, charts, data;
+  
+    google.load('visualization', '1', {packages:['gauge']});
+    google.setOnLoadCallback(initChart);
+  
+    function displayData(point,chart,gaugename,options) {
+      data.setValue(0, 0, gaugename);
+      data.setValue(0, 1, point);
+      chart.draw(data, options);
+    }
+  
+    function loadData() {
+      var p;
+      
+      $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/fields/1/last.json?api_key=' + api_key, function(data) {
+  
+        p = data.field1;
+
+        if (p) {
+          if(p > options1.redFrom && p <= options1.redTo) {
+            $('#warning1').html('Take immediate action!');
+
+            if($('#warning1').hasClass('yellow')) {
+              $('#warning1').removeClass('yellow');
+            }
+
+            $('#warning1').addClass('red');
+          }
+          else if(p > options1.yellowFrom && p <= options1.yellowTo) {
+            $('#warning1').html('Not in average range!');
+
+            if($('#warning1').hasClass('red')) {
+              $('#warning1').removeClass('red');
+            }
+
+            $('#warning1').addClass('yellow');
+          }
+          else {
+            $('#warning1').html('');
+
+            if($('#warning1').hasClass('red')) {
+              $('#warning1').removeClass('red');
+            }
+
+            if($('#warning1').hasClass('yellow')) {
+              $('#warning1').removeClass('yellow');
+            }
+          }
+          displayData(p,chart1,gauge_name1,options1);
+        }
+      });
+
+      $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/fields/2/last.json?api_key=' + api_key, function(data) {
+  
+        p = data.field2;
+
+        if (p) {
+          if(p > options2.redFrom && p <= options2.redTo) {
+            $('#warning2').html('Take immediate action!');
+
+            if($('#warning2').hasClass('yellow')) {
+              $('#warning2').removeClass('yellow');
+            }
+
+            $('#warning2').addClass('red');
+
+          }
+          else if(p > options2.yellowFrom && p <= options2.yellowTo) {
+            $('#warning2').html('Not in average range!');
+
+            if($('#warning2').hasClass('red')) {
+              $('#warning2').removeClass('red');
+            }
+
+            $('#warning2').addClass('yellow');
+            
+          }
+          else {
+            $('#warning2').html('');
+
+            if($('#warning2').hasClass('red')) {
+              $('#warning2').removeClass('red');
+            }
+
+            if($('#warning2').hasClass('yellow')) {
+              $('#warning2').removeClass('yellow');
+            }
+          }
+          displayData(p,chart2,gauge_name2,options2);
+        }
+
+      });
+
+      $.getJSON('https://api.thingspeak.com/channels/' + channel_id + '/fields/3/last.json?api_key=' + api_key, function(data) {
+        
+        p = data.field3;
+        
+        if (p) {
+        //   if(p > options3.redFrom && p <= options3.redTo) {
+        //     $('#warning3').html('Take immediate action!');
+
+        //     if($('#warning3').hasClass('yellow')) {
+        //       $('#warning3').removeClass('yellow');
+        //     }
+
+        //     $('#warning3').addClass('red');
+
+        //   }
+        //   else if(p > options3.yellowFrom && p <= options3.yellowTo) {
+        //     $('#warning3').html('Not in average range!');
+
+        //     if($('#warning3').hasClass('red')) {
+        //       $('#warning3').removeClass('red');
+        //     }
+
+        //     $('#warning3').addClass('yellow');
+        //   }
+        //   else {
+        //     $('#warnin3').html('');
+
+        //     if($('#warning3').hasClass('red')) {
+        //       $('#warning3').removeClass('red');
+        //     }
+
+        //     if($('#warning3').hasClass('yellow')) {
+        //       $('#warning3').removeClass('yellow');
+        //     }
+        //   }
+          displayData(p,chart3,gauge_name3,options3);
+        }
+
+      });
+    }
+  
+    // initialize the chart
+    function initChart() {
+  
+      data = new google.visualization.DataTable();
+      data.addColumn('string', 'Label');
+      data.addColumn('number', 'Value');
+      data.addRows(1);
+  
+      chart1 = new google.visualization.Gauge(document.getElementById('gauge_div1'));
+      chart2 = new google.visualization.Gauge(document.getElementById('gauge_div2'));
+      chart3 = new google.visualization.Gauge(document.getElementById('gauge_div3'));
+      options1  = {width: 120, height: 120, greenFrom: 0, greenTo: 50, redFrom: 150, redTo: 500, yellowFrom: 50, yellowTo: 150, minorTicks: 25, max: 500};
+      options2  = {width: 120, height: 120, greenFrom: 0, greenTo: 2500, redFrom: 5000, redTo: 40000, yellowFrom: 2500, yellowTo: 5000, minorTicks: 25, max: 40000};
+      options3  = {width: 120, height: 120, greenFrom: 0, greenTo: 33, redFrom: 66, redTo: 100, yellowFrom: 33, yellowTo: 66, minorTicks: 25, max: 100};
+  
+      loadData();
+      
+      setInterval('loadData()', 500);
+    }
+  
+  </script>
+</head>
+<body>
+  <div id = "topdecor">
+    <h1>AIR QUALITY MONITORING SYSTEM</h1>
+  </div>
+  <div id="container">
+    <div id="inner">
+      <div class = "gauge_card">
+        <div id = "warning1" class = "warning"></div>
+        <div id="gauge_div1"></div>
+      </div>
+      <div class = "gauge_card">
+        <div id = "warning2" class = "warning"></div>
+        <div id="gauge_div2"></div>
+      </div>
+      <div class = "gauge_card">
+        <div id = "warning3" class = "warning"></div>
+        <div id="gauge_div3"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
